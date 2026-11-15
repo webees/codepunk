@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Frontend build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# Rust build output
+target/
+src-tauri/gen/schemas/
+
+# Local overrides
+.env
+.env.*
+*.local
+
+# Local-only design references
+docs/
+
+# Logs
+*.log
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+
+# Tauri mobile projects
+src-tauri/gen/apple/
+src-tauri/gen/android/

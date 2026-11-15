@@ -1,0 +1,36 @@
+[package]
+name = "codepunk"
+version = "0.1.0"
+description = "Codepunk desktop application"
+authors = ["Codepunk contributors"]
+edition = "2021"
+rust-version = "1.90"
+license = "MIT"
+repository = "https://github.com/webees/codepunk"
+publish = false
+
+[lib]
+name = "codepunk_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+tauri = { version = "2", features = [] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
+
+[lints.rust]
+missing_docs = "warn"
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
