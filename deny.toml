@@ -1,0 +1,32 @@
+[advisories]
+yanked = "deny"
+version = 2
+ignore = [
+  # Tauri's Linux GTK stack still pulls this unmaintained proc-macro crate in
+  # transitively. It is not part of Codepunk's public API and no patched release
+  # exists; revisit when the GTK dependency chain drops it.
+  { id = "RUSTSEC-2024-0370", reason = "transitive GTK proc-macro dependency; no upstream fix" },
+  # tauri-plugin-opener enables zbus on Linux. These three crates are
+  # unmaintained but have no known exploitable path inside this app; track
+  # upstream migration before 1.0.
+  { id = "RUSTSEC-2026-0370", reason = "transitive zbus dependency of tauri-plugin-opener; no fix available" },
+  { id = "RUSTSEC-2026-0371", reason = "transitive zbus dependency of tauri-plugin-opener; no fix available" },
+  { id = "RUSTSEC-2026-0372", reason = "transitive zbus dependency of tauri-plugin-opener; no fix available" },
+]
+
+[licenses]
+allow = ["MIT", "Apache-2.0", "Apache-2.0 WITH LLVM-exception", "BSD-2-Clause", "BSD-3-Clause", "ISC", "Unicode-3.0", "Zlib", "MPL-2.0", "CC0-1.0", "0BSD"]
+confidence-threshold = 0.8
+exceptions = []
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+deny = []
+skip = []
+skip-tree = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
