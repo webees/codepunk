@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Codepunk">
+  <rect width="64" height="64" rx="16" fill="#0b0d10" />
+  <path
+    d="M18 22l10 10-10 10"
+    fill="none"
+    stroke="#c8f751"
+    stroke-width="5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path d="M34 42h12" stroke="#63e6d5" stroke-width="5" stroke-linecap="round" />
+</svg>

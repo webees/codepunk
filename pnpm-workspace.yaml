@@ -1,0 +1,8 @@
+packages:
+  - "."
+
+allowBuilds:
+  esbuild: true
+
+overrides:
+  ini: ^1.3.6
