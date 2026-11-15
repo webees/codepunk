@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to build
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  BUN_CONFIG_REGISTRY: https://registry.npmjs.org
+
+jobs:
+  publish:
+    name: Publish (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: --target universal-apple-darwin --bundles app,dmg
+            label: macos-universal
+            bundle: src-tauri/target/universal-apple-darwin/release/bundle
+          - os: ubuntu-22.04
+            args: --bundles deb,appimage
+            label: linux-x64
+            bundle: src-tauri/target/release/bundle
+          - os: windows-latest
+            args: --bundles nsis
+            label: windows-x64
+            bundle: src-tauri/target/release/bundle
+    steps:
+      - name: Validate tag
+        shell: bash
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Expected a semver tag such as v0.1.0, got '$TAG'."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Install Linux prerequisites
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev \
+            librsvg2-dev patchelf
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build bundles
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          tagName: ${{ github.event.inputs.tag || github.ref_name }}
+          releaseName: Codepunk ${{ github.event.inputs.tag || github.ref_name }}
+          releaseBody: See the commit history for details.
+          releaseDraft: true
+          args: ${{ matrix.args }}
+
+      - name: Upload bundles
+        uses: actions/upload-artifact@v7
+        with:
+          name: bundle-${{ matrix.label }}
+          path: ${{ matrix.bundle }}
+          if-no-files-found: error
+          retention-days: 7
+
+  attest:
+    name: Attest build provenance
+    needs: publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download bundles
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: artifacts/**/*
