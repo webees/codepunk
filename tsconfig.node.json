@@ -15,5 +15,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts"]
+  "include": ["rsbuild.config.ts", "rstest.config.ts"]
 }

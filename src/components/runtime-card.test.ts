@@ -1,8 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/vue";
+import { describe, expect, it } from "@rstest/core";
 
-import { RuntimeCard } from "./runtime-card";
 import type { RuntimeState } from "../hooks/use-runtime-info";
+import RuntimeCard from "./runtime-card.vue";
 
 const readyState: RuntimeState = {
   status: "ready",
@@ -18,19 +18,23 @@ const readyState: RuntimeState = {
 
 describe("RuntimeCard", () => {
   it("announces loading state", () => {
-    render(<RuntimeCard state={{ status: "loading", info: null, error: null }} />);
+    render(RuntimeCard, {
+      props: { state: { status: "loading", info: null, error: null } },
+    });
     expect(screen.getByText(/inspecting the desktop bridge/i)).toBeInTheDocument();
   });
 
   it("renders runtime facts when connected", () => {
-    render(<RuntimeCard state={readyState} />);
+    render(RuntimeCard, { props: { state: readyState } });
     expect(screen.getByText("Connected")).toBeInTheDocument();
     expect(screen.getByText("Codepunk v0.1.0")).toBeInTheDocument();
     expect(screen.getByText("macos · aarch64")).toBeInTheDocument();
   });
 
   it("surfaces bridge errors", () => {
-    render(<RuntimeCard state={{ status: "error", info: null, error: "ipc failed" }} />);
+    render(RuntimeCard, {
+      props: { state: { status: "error", info: null, error: "ipc failed" } },
+    });
     expect(screen.getByRole("alert")).toHaveTextContent("ipc failed");
   });
 });

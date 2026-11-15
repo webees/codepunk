@@ -37,7 +37,7 @@
     "targets": "all",
     "category": "DeveloperTool",
     "shortDescription": "A Tauri desktop starter.",
-    "longDescription": "Codepunk is a production-grade desktop starter built with Tauri 2, React 19 and Rust.",
+    "longDescription": "Codepunk is a production-grade desktop starter built with Tauri 2, Vue 3, Rsbuild and Rust.",
     "copyright": "Copyright (c) 2026 Codepunk contributors",
     "icon": [
       "icons/32x32.png",

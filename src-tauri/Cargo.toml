@@ -9,7 +9,7 @@ license = "MIT"
 repository = "https://github.com/webees/codepunk"
 homepage = "https://github.com/webees/codepunk"
 readme = "../README.md"
-keywords = ["tauri", "desktop", "react", "starter"]
+keywords = ["tauri", "desktop", "vue", "starter"]
 categories = ["gui"]
 publish = false
 

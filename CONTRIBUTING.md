@@ -25,13 +25,13 @@ values when the Tauri IPC bridge is unavailable.
 
 | Command            | Purpose                                        |
 | ------------------ | ---------------------------------------------- |
-| `pnpm dev`         | Vite dev server on port 1420                   |
+| `pnpm dev`         | Rsbuild dev server on port 1420                |
 | `pnpm build`       | Type-check and build the frontend bundle       |
 | `pnpm tauri dev`   | Full desktop app with hot reload               |
 | `pnpm tauri build` | Production installers for the current platform |
 | `pnpm lint`        | ESLint with zero-warning policy                |
 | `pnpm typecheck`   | TypeScript project references check            |
-| `pnpm test`        | Vitest unit and component tests                |
+| `pnpm test`        | Rstest unit and component tests                |
 | `pnpm format`      | Prettier write                                 |
 | `pnpm check`       | Format, lint, typecheck and tests in one pass  |
 

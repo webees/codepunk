@@ -4,7 +4,7 @@ export const REPOSITORY_URL = "https://github.com/webees/codepunk";
 
 export const externalLinks = [
   { label: "Tauri", href: "https://tauri.app" },
-  { label: "React", href: "https://react.dev" },
+  { label: "Vue", href: "https://vuejs.org" },
   { label: "Rust", href: "https://www.rust-lang.org" },
-  { label: "Vite", href: "https://vite.dev" },
+  { label: "Rsbuild", href: "https://rsbuild.rs" },
 ] as const;

@@ -7,7 +7,7 @@
       "command": "pnpm dev",
       "isBackground": true,
       "problemMatcher": {
-        "owner": "vite",
+        "owner": "rsbuild",
         "pattern": {
           "regexp": "^(.*):(\\d+):(\\d+):\\s+(error|warning)\\s+(.*)$",
           "file": 1,
@@ -18,8 +18,8 @@
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "VITE v",
-          "endsPattern": "ready in"
+          "beginsPattern": "Rsbuild v",
+          "endsPattern": "ready\\s+built in"
         }
       }
     }

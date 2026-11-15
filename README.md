@@ -4,7 +4,7 @@
 
 # Codepunk
 
-**A small, honest desktop foundation — Tauri 2, React 19, Rust.**
+**A small, honest desktop foundation — Tauri 2, Vue 3, Rsbuild, Rust.**
 
 [![CI](https://github.com/webees/codepunk/actions/workflows/ci.yml/badge.svg)](https://github.com/webees/codepunk/actions/workflows/ci.yml)
 [![Release](https://github.com/webees/codepunk/actions/workflows/release.yml/badge.svg)](https://github.com/webees/codepunk/actions/workflows/release.yml)
@@ -35,10 +35,10 @@ needs on day one.
 | Layer   | Choice                                   |
 | ------- | ---------------------------------------- |
 | Shell   | Tauri 2                                  |
-| UI      | React 19 + TypeScript 5.9 (strict)       |
-| Build   | Vite 7                                   |
+| UI      | Vue 3.5 + TypeScript 5.9 (strict)        |
+| Build   | Rsbuild 2                                |
 | Core    | Rust 2021, `serde`                       |
-| Tests   | Vitest + Testing Library, `cargo test`   |
+| Tests   | Rstest + Testing Library, `cargo test`   |
 | Quality | ESLint 9, Prettier 3, clippy, commitlint |
 | CI/CD   | GitHub Actions (macOS, Ubuntu, Windows)  |
 
@@ -68,12 +68,12 @@ Artifacts land in `src-tauri/target/release/bundle/`.
 
 ```text
 .
-├── src/                      # React frontend
+├── src/                      # Vue frontend
 │   ├── app/                  # Config, IPC adapter, pure helpers
 │   ├── components/           # Presentational components
-│   ├── hooks/                # Stateful React hooks
+│   ├── hooks/                # Vue composables
 │   ├── styles/               # Layered CSS with design tokens
-│   └── test/                 # Vitest setup
+│   └── test/                 # Rstest setup
 ├── src-tauri/                # Rust core
 │   ├── capabilities/         # Window permission sets
 │   └── src/                  # Commands and domain logic
@@ -103,13 +103,13 @@ capability, then wrap the call in `src/app`.
 
 | Command            | Description                       |
 | ------------------ | --------------------------------- |
-| `pnpm dev`         | Vite dev server (port 1420)       |
+| `pnpm dev`         | Rsbuild dev server (port 1420)    |
 | `pnpm build`       | Type-check and build the frontend |
 | `pnpm tauri dev`   | Desktop app with hot reload       |
 | `pnpm tauri build` | Platform installers               |
 | `pnpm lint`        | ESLint, zero warnings allowed     |
 | `pnpm typecheck`   | Project-reference type check      |
-| `pnpm test`        | Vitest run                        |
+| `pnpm test`        | Rstest run                        |
 | `pnpm check`       | Format + lint + typecheck + tests |
 | `pnpm format`      | Prettier write                    |
 
