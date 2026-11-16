@@ -71,10 +71,10 @@
     "@rstest/coverage-v8": "^0.12.6",
     "@tauri-apps/cli": "^2.0.0",
     "@testing-library/vue": "^8.1.0",
-    "@types/node": "^22.20.0",
+    "@types/node": "^26.6.6",
     "husky": "^9.1.0",
-    "jsdom": "^26.0.0",
-    "typescript": "~5.9.0",
+    "jsdom": "^31.0.1",
+    "typescript": "~7.0.2",
     "vue-tsc": "^3.3.14"
   }
 }
