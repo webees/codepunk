@@ -1,7 +1,7 @@
 # CodePunk
 
-A minimal desktop client for the [Pi](https://pi.dev) coding agent, built with Tauri 2, Vue 3,
-Rsbuild and Rust.
+A headless desktop shell for the [Pi](https://pi.dev) coding agent, built with Tauri 2, Rsbuild
+and Rust.
 
 ## Requirements
 
@@ -29,8 +29,9 @@ bun run build       # type-check and build the frontend
 bun run tauri build # build installers
 ```
 
-`src/` contains the Vue agent interface. `src-tauri/src/agent.rs` owns the Pi process and streams
-its JSON events to the UI; `src-tauri/src/main.rs` only wires Tauri and its commands.
+The repository intentionally ships without UI or CSS. `src/agent.ts` is a framework-neutral event
+reducer for a future interface; `src-tauri/src/agent.rs` owns the Pi process and streams its JSON
+events over `pi://event`. `src-tauri/src/main.rs` only wires Tauri and its commands.
 
 Use Conventional Commits. CI checks quality and bundles macOS, Linux and Windows artifacts.
 

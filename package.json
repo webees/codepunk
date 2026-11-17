@@ -2,7 +2,7 @@
   "name": "codepunk",
   "version": "0.1.0",
   "private": true,
-  "description": "Minimal desktop client for the Pi coding agent.",
+  "description": "Headless Tauri shell for the Pi coding agent.",
   "license": "MIT",
   "author": "CodePunk contributors",
   "repository": {
@@ -19,10 +19,6 @@
     "typecheck": "tsc --pretty false",
     "test": "bun test",
     "check": "bun run lint && bun run typecheck && bun run test"
-  },
-  "dependencies": {
-    "@tauri-apps/api": "^2.12.5",
-    "vue": "^3.5.45"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.8",
