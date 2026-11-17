@@ -1,0 +1,61 @@
+name: Dependabot auto-merge
+
+# pull_request_target can write to the repository. This workflow never checks
+# out or executes the pull request tree, so Dependabot cannot alter the code
+# that decides whether its own update is merged.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependabot-automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  merge:
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      !github.event.pull_request.draft
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Read update metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ github.token }}
+
+      - name: Enable squash auto-merge
+        shell: bash
+        env:
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$PR" =~ ^[1-9][0-9]*$ ]] || { echo "::error::invalid pull request number"; exit 1; }
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::invalid head SHA"; exit 1; }
+          case "$UPDATE_TYPE" in
+            version-update:semver-minor|version-update:semver-patch)
+              # GitHub merges only after every required check succeeds.
+              gh pr merge "$PR" --repo "$REPO" --auto --squash --delete-branch \
+                --match-head-commit "$HEAD_SHA" || {
+                  enabled=$(gh pr view "$PR" --repo "$REPO" \
+                    --json autoMergeRequest --jq '.autoMergeRequest != null')
+                  [[ "$enabled" == true ]] || exit 1
+                }
+              ;;
+            version-update:semver-major)
+              echo "Major update #${PR} requires manual review."
+              ;;
+            *)
+              echo "Update #${PR} has no recognized type; leaving it open."
+              ;;
+          esac

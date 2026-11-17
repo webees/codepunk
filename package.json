@@ -1,0 +1,33 @@
+{
+  "name": "codepunk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tauri 2 + Vue 3 + Rsbuild + Rust desktop application.",
+  "license": "MIT",
+  "author": "CodePunk contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webees/codepunk.git"
+  },
+  "type": "module",
+  "packageManager": "bun@1.4.4",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "build": "bun run typecheck && rsbuild build",
+    "tauri": "tauri",
+    "lint": "biome ci .",
+    "typecheck": "tsc --pretty false",
+    "test": "bun test",
+    "check": "bun run lint && bun run typecheck && bun run test"
+  },
+  "dependencies": {
+    "vue": "^3.5.45"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.8",
+    "@rsbuild/core": "^2.3.2",
+    "@tauri-apps/cli": "^2.12.5",
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  }
+}

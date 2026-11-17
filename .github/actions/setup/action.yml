@@ -1,0 +1,65 @@
+name: Setup
+description: Install Bun, Rust and Linux webview deps, and resolve Tauri build arguments.
+
+inputs:
+  rust:
+    description: Install the Rust toolchain and build cache
+    default: "false"
+  universal:
+    description: Build a universal macOS binary
+    default: "false"
+  components:
+    description: Comma-separated rustup components
+    default: ""
+
+outputs:
+  args:
+    description: Tauri build arguments
+    value: ${{ steps.platform.outputs.args }}
+  target:
+    description: Resolved target triple
+    value: ${{ steps.platform.outputs.target }}
+
+runs:
+  using: composite
+  steps:
+    - id: platform
+      shell: bash
+      env:
+        RUST: ${{ inputs.rust }}
+        UNIVERSAL: ${{ inputs.universal }}
+      run: |
+        case "$RUNNER_OS" in
+          Linux) target=x86_64-unknown-linux-gnu; args="--bundles deb,appimage" ;;
+          Windows) target=x86_64-pc-windows-msvc; args="--bundles nsis" ;;
+          macOS)
+            target=aarch64-apple-darwin
+            if [ "$UNIVERSAL" = true ]; then
+              target=universal-apple-darwin
+              targets=aarch64-apple-darwin,x86_64-apple-darwin
+            fi
+            args="--target $target --bundles app,dmg"
+            ;;
+        esac
+        printf 'target=%s\nargs=%s\ntargets=%s\nrust=%s\n' \
+          "$target" "$args" "${targets:-$target}" "$RUST" >> "$GITHUB_OUTPUT"
+    - name: Install Linux prerequisites
+      if: runner.os == 'Linux' && steps.platform.outputs.rust == 'true'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+    - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      with:
+        bun-version-file: package.json
+    - if: steps.platform.outputs.rust == 'true'
+      uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
+      with:
+        toolchain: stable
+        targets: ${{ steps.platform.outputs.targets }}
+        components: ${{ inputs.components }}
+    - if: steps.platform.outputs.rust == 'true'
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      with:
+        workspaces: src-tauri -> target
+        key: ${{ steps.platform.outputs.target }}
