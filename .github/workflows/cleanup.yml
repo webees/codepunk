@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: Mattraks/delete-workflow-runs@b3018382ca039b53d238908238bd35d1fb14f8ee # v2.1.0
         with:
-          delete_workflow_pattern: "ci.yml|cleanup.yml|dependabot-automerge.yml"
+          delete_workflow_pattern: "ci.yml|cleanup.yml|dependabot-automerge.yml|pi-update.yml"
           retain_days: 7
           keep_minimum_runs: 5
           dry_run: ${{ inputs.dry_run || 'false' }}

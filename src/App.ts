@@ -1,7 +1,4 @@
-import { createApp, h } from "vue";
+import { createApp } from "vue";
 
-const App = { render: () => h("main", h("h1", "CodePunk")) };
-
-if (typeof document !== "undefined") createApp(App).mount("#root");
-
-export default App;
+// The UI system will replace this empty root component.
+createApp({ render: () => null }).mount("#root");

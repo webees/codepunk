@@ -3,9 +3,9 @@
   "productName": "CodePunk",
   "identifier": "com.webees.codepunk",
   "build": {
-    "beforeDevCommand": "bun run dev",
+    "beforeDevCommand": "bun run pi && bun run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "bun run build",
+    "beforeBuildCommand": "bun run pi && bun run build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -24,6 +24,10 @@
     "active": true,
     "category": "DeveloperTool",
     "shortDescription": "CodePunk desktop application.",
+    "externalBin": ["binaries/pi"],
+    "resources": {
+      "resources/pi": "pi-runtime"
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -32,7 +36,7 @@
       "icons/icon.ico"
     ],
     "macOS": {
-      "minimumSystemVersion": "10.15"
+      "minimumSystemVersion": "13.0"
     }
   }
 }

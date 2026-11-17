@@ -2,7 +2,7 @@
   "name": "codepunk",
   "version": "0.1.0",
   "private": true,
-  "description": "Tauri 2 + Vue 3 + Rsbuild + Rust desktop application.",
+  "description": "Minimal Tauri and Vue shell for the Pi coding agent.",
   "license": "MIT",
   "author": "CodePunk contributors",
   "repository": {
@@ -14,6 +14,9 @@
   "scripts": {
     "dev": "rsbuild dev",
     "build": "bun run typecheck && rsbuild build",
+    "pi": "bun scripts/pi.ts",
+    "smoke": "bun scripts/smoke.ts",
+    "update:pi": "bun scripts/update-pi.ts",
     "tauri": "tauri",
     "lint": "biome ci .",
     "typecheck": "tsc --pretty false",
@@ -21,13 +24,14 @@
     "check": "bun run lint && bun run typecheck && bun run test"
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.12.5",
     "vue": "^3.5.45"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.8",
-    "@rsbuild/core": "^2.3.2",
+    "@rsbuild/core": "^2.3.3",
     "@tauri-apps/cli": "^2.12.5",
-    "@types/node": "^26.6.6",
+    "@types/bun": "^1.4.4",
     "typescript": "^7.0.2"
   }
 }
