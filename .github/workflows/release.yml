@@ -118,9 +118,19 @@ jobs:
           releaseDraft: true
           uploadUpdaterJson: false
           args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
-      - name: Verify macOS universal binary
-        if: runner.os == 'macOS'
-        run: lipo -verify_arch arm64 x86_64 "src-tauri/target/${{ matrix.target }}/release/codepunk"
+      - name: Verify macOS universal bundle
+        if: matrix.target == 'universal-apple-darwin'
+        run: |
+          app="src-tauri/target/${{ matrix.target }}/release/bundle/macos/CodePunk.app"
+          for binary in \
+            "src-tauri/target/${{ matrix.target }}/release/codepunk" \
+            "src-tauri/binaries/pi-aarch64-apple-darwin" \
+            "src-tauri/binaries/pi-x86_64-apple-darwin" \
+            "$app/Contents/MacOS/pi"; do
+            for arch in arm64 x86_64; do lipo -verify_arch "$arch" "$binary"; done
+          done
+          test -f "$app/Contents/Resources/pi-runtime/package.json"
+          test -f "$app/Contents/Resources/pi-runtime/photon_rs_bg.wasm"
 
   publish:
     needs: [prepare, build]

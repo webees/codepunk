@@ -2,6 +2,8 @@ node_modules/
 dist/
 coverage/
 target/
+src-tauri/binaries/
+src-tauri/resources/pi/
 src-tauri/gen/
 .env*
 .DS_Store
