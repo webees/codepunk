@@ -4,9 +4,6 @@ export type PiMessage = {
 };
 
 export type PiStatus = {
-  available: boolean;
-  path: string | null;
-  version: string | null;
   running: boolean;
 };
 

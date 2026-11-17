@@ -8,17 +8,10 @@ and Rust.
 Bun 1.4.4+, Rust 1.90+, and the
 [Tauri prerequisites](https://tauri.app/start/prerequisites/) for your OS.
 
-CodePunk drives a local Pi installation over its
-[RPC mode](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/rpc.md), so
-install and authenticate Pi once:
-
-```bash
-curl -fsSL https://pi.dev/install.sh | sh
-pi   # complete provider login, then exit
-```
-
-Pi must be on `PATH`, or `CODEPUNK_PI_BIN` must point at the executable. CodePunk never stores
-credentials; Pi keeps them in its own configuration.
+Pi runs as a desktop sidecar over its
+[RPC mode](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/rpc.md). The
+Pi executable must sit beside the CodePunk executable as `pi` (or `pi.exe` on Windows); CodePunk
+performs no `PATH` scan or version probe. Credentials stay in Pi's own configuration.
 
 ```bash
 bun install

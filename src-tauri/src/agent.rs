@@ -3,7 +3,7 @@
 use std::{
     env,
     io::{BufRead, BufReader, Read, Write},
-    path::{Path, PathBuf},
+    path::Path,
     process::{Child, ChildStdin, Command, Stdio},
     sync::Mutex,
     thread,
@@ -14,8 +14,6 @@ use serde_json::{Value, json};
 use tauri::{AppHandle, Emitter, State};
 
 const EVENT: &str = "pi://event";
-const INSTALL_HINT: &str =
-    "未找到 pi，请运行 `curl -fsSL https://pi.dev/install.sh | sh`，然后执行 `pi` 完成登录";
 
 /// Shared Pi process state managed by Tauri.
 #[derive(Default)]
@@ -33,75 +31,21 @@ impl Drop for Session {
     }
 }
 
-/// Pi availability and process status.
+/// Pi process status.
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Status {
-    available: bool,
-    path: Option<String>,
-    version: Option<String>,
     running: bool,
 }
 
-fn executable_names() -> &'static [&'static str] {
-    if cfg!(windows) {
-        &["pi.cmd", "pi.exe", "pi"]
-    } else {
-        &["pi"]
-    }
-}
-
-fn detect() -> Option<PathBuf> {
-    if let Some(path) = env::var_os("CODEPUNK_PI_BIN").map(PathBuf::from) {
-        return path.is_file().then_some(path);
-    }
-
-    let mut candidates = Vec::new();
-    if let Some(home) = env::var_os("HOME").or_else(|| env::var_os("USERPROFILE")) {
-        let home = PathBuf::from(home);
-        for relative in [
-            ".pi/agent/bin/pi",
-            ".local/bin/pi",
-            ".bun/bin/pi",
-            ".npm-global/bin/pi",
-        ] {
-            candidates.push(home.join(relative));
-        }
-    }
-    #[cfg(target_os = "macos")]
-    candidates.extend([
-        PathBuf::from("/opt/homebrew/bin/pi"),
-        PathBuf::from("/usr/local/bin/pi"),
-    ]);
-
-    if let Some(path) = env::var_os("PATH") {
-        for directory in env::split_paths(&path) {
-            candidates.extend(executable_names().iter().map(|name| directory.join(name)));
-        }
-    }
-
-    candidates.into_iter().find(|path| path.is_file())
-}
-
-fn command(path: &Path) -> Command {
-    #[cfg(windows)]
-    if path
-        .extension()
-        .is_some_and(|extension| extension.to_string_lossy().eq_ignore_ascii_case("cmd"))
-    {
-        let mut command = Command::new("cmd");
-        command.arg("/C").arg(path);
-        return command;
-    }
-    Command::new(path)
-}
-
-fn version(path: &Path) -> Option<String> {
-    let output = command(path).arg("--version").output().ok()?;
-    if !output.status.success() {
-        return None;
-    }
-    Some(String::from_utf8_lossy(&output.stdout).trim().to_owned())
+fn command() -> Result<Command, String> {
+    let name = if cfg!(windows) { "pi.exe" } else { "pi" };
+    let directory = env::current_exe()
+        .map_err(|error| format!("无法定位 CodePunk 可执行文件: {error}"))?
+        .parent()
+        .ok_or_else(|| "无法定位 CodePunk 安装目录".to_owned())?
+        .to_path_buf();
+    Ok(Command::new(directory.join(name)))
 }
 
 fn current_status(state: &mut Option<Session>) -> Status {
@@ -112,12 +56,7 @@ fn current_status(state: &mut Option<Session>) -> Status {
         *state = None;
     }
 
-    let path = detect();
-    let detected_version = path.as_deref().and_then(version);
     Status {
-        available: path.is_some(),
-        path: path.map(|value| value.display().to_string()),
-        version: detected_version,
         running: state.is_some(),
     }
 }
@@ -175,7 +114,7 @@ fn send(state: &State<'_, Runtime>, value: &Value) -> Result<(), String> {
     write_record(session, value).map_err(|error| format!("无法写入 Pi: {error}"))
 }
 
-/// Return Pi availability and process status.
+/// Return Pi process status.
 ///
 /// # Errors
 ///
@@ -191,8 +130,8 @@ pub fn pi_status(state: State<'_, Runtime>) -> Result<Status, String> {
 ///
 /// # Errors
 ///
-/// Returns an error when Pi is missing, the directory is invalid, or the
-/// process cannot be spawned.
+/// Returns an error when the sidecar is missing, the directory is invalid, or
+/// the process cannot be spawned.
 #[tauri::command]
 #[allow(clippy::needless_pass_by_value)]
 pub fn pi_start(
@@ -210,12 +149,7 @@ pub fn pi_start(
     if !Path::new(&directory).is_dir() {
         return Err(format!("工作目录不存在: {directory}"));
     }
-    let binary = status
-        .path
-        .map(PathBuf::from)
-        .ok_or_else(|| INSTALL_HINT.to_owned())?;
-
-    let mut child = command(&binary)
+    let mut child = command()?
         .arg("--mode")
         .arg("rpc")
         .current_dir(&directory)
@@ -223,7 +157,7 @@ pub fn pi_start(
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|error| format!("无法启动 Pi: {error}"))?;
+        .map_err(|error| format!("无法启动 Pi，请确认 sidecar 已随应用打包: {error}"))?;
     let (Some(stdin), Some(stdout), Some(stderr)) =
         (child.stdin.take(), child.stdout.take(), child.stderr.take())
     else {
@@ -277,14 +211,7 @@ pub fn pi_stop(state: State<'_, Runtime>) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        io::{BufRead, BufReader, Write},
-        process::Stdio,
-    };
-
-    use serde_json::Value;
-
-    use super::{command, detect, event_from_line};
+    use super::event_from_line;
 
     #[test]
     fn parses_protocol_records() {
@@ -302,34 +229,5 @@ mod tests {
         let stderr = event_from_line(r#"{"type":"noise"}"#, true);
         assert_eq!(stderr["type"], "log");
         assert_eq!(stderr["level"], "stderr");
-    }
-
-    #[test]
-    #[ignore = "requires a local Pi installation"]
-    fn speaks_pi_rpc() {
-        let binary = detect().expect("Pi is not installed");
-        let mut child = command(&binary)
-            .args(["--mode", "rpc"])
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::null())
-            .spawn()
-            .expect("failed to spawn Pi");
-        let mut stdin = child.stdin.take().expect("missing stdin");
-        let stdout = child.stdout.take().expect("missing stdout");
-
-        writeln!(stdin, r#"{{"id":"probe","type":"get_state"}}"#).expect("failed to write");
-        stdin.flush().expect("failed to flush");
-
-        let mut line = String::new();
-        BufReader::new(stdout)
-            .read_line(&mut line)
-            .expect("failed to read");
-        let event: Value = serde_json::from_str(&line).expect("invalid JSON");
-        assert_eq!(event["command"], "get_state");
-        assert_eq!(event["success"], true);
-
-        let _ = child.kill();
-        let _ = child.wait();
     }
 }
