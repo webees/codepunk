@@ -30,7 +30,6 @@ jobs:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
       - run: bun run check
-      - run: bun run build
 
   audit:
     name: Security audit

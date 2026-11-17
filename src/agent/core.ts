@@ -130,6 +130,7 @@ export const applyPiEvent = (state: AgentState, payload: unknown): void => {
       }
       break;
     case "agent_settled":
+    case "exit":
       state.busy = false;
       break;
     case "response":
@@ -141,9 +142,6 @@ export const applyPiEvent = (state: AgentState, payload: unknown): void => {
     case "error":
       state.busy = false;
       state.error = typeof event.message === "string" ? event.message : "Pi 错误";
-      break;
-    case "exit":
-      state.busy = false;
       break;
     default:
       break;

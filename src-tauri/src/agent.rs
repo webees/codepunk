@@ -39,13 +39,12 @@ pub fn pi_start(app: AppHandle, agent: State<'_, PiAgent>, cwd: String) -> Resul
         .resource_dir()
         .map_err(|error| format!("无法定位 Pi 资源: {error}"))?
         .join("pi-runtime");
-    let handle = app.clone();
     *guard = Some(Pi::spawn(&binary, cwd, &package, move |output| {
         let payload = match output {
             Output::Line(line) => line,
             Output::Exit => r#"{"type":"exit"}"#.to_string(),
         };
-        let _ = handle.emit(EVENT, payload);
+        let _ = app.emit(EVENT, payload);
     })?);
     Ok(())
 }

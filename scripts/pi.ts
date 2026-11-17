@@ -77,7 +77,7 @@ const download = async (url: string, name: string, expected: string): Promise<st
   return path;
 };
 
-type Package = { temporary: string; root: string };
+type Package = { temporary: string; root: string; target: Platform };
 
 const extract = async (target: Platform): Promise<Package> => {
   const [slug, extension, checksum] = PLATFORMS[target];
@@ -87,7 +87,7 @@ const extract = async (target: Platform): Promise<Package> => {
   run("tar", ["-xf", source, "-C", temporary]);
   const nested = join(temporary, "pi");
   const root = (await Bun.file(join(nested, "package.json")).exists()) ? nested : temporary;
-  return { temporary, root };
+  return { temporary, root, target };
 };
 
 const target = process.argv[2] ?? process.env.TAURI_ENV_TARGET_TRIPLE ?? host();
@@ -113,11 +113,9 @@ try {
   const [first] = packages;
   if (!first) throw new Error("Pi archive did not contain a package directory");
 
-  for (const [index, platform] of targets.entries()) {
-    const archive = packages[index];
-    if (!archive) throw new Error(`Missing Pi archive for ${platform}`);
-    const extension = platform.includes("windows") ? ".exe" : "";
-    const output = join(BINARIES, `pi-${platform}${extension}`);
+  for (const archive of packages) {
+    const extension = archive.target.includes("windows") ? ".exe" : "";
+    const output = join(BINARIES, `pi-${archive.target}${extension}`);
     await copyFile(join(archive.root, `pi${extension}`), output);
     if (!extension) await chmod(output, 0o755);
   }
