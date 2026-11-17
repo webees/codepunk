@@ -10,7 +10,7 @@ use std::{
 };
 
 use serde_json::Value;
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 
 const EVENT: &str = "pi://event";
 
@@ -50,9 +50,15 @@ pub fn pi_start(app: AppHandle, pi: State<'_, Pi>, cwd: String) -> Result<(), St
     let binary = env::current_exe()
         .map_err(|error| format!("无法定位 CodePunk: {error}"))?
         .with_file_name(if cfg!(windows) { "pi.exe" } else { "pi" });
+    let package = app
+        .path()
+        .resource_dir()
+        .map_err(|error| format!("无法定位 Pi 资源: {error}"))?
+        .join("pi-runtime");
     let mut child = Command::new(binary)
         .args(["--mode", "rpc"])
         .current_dir(cwd)
+        .env("PI_PACKAGE_DIR", package)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()

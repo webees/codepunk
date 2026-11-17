@@ -12,7 +12,7 @@ const htmlTemplate = `<!doctype html>
 
 export default defineConfig({
   source: {
-    entry: { index: "./src/index.ts" },
+    entry: { index: "./src/agent.ts" },
   },
   server: {
     port: 1420,
