@@ -6,10 +6,10 @@ describe("Pi event state", () => {
   test("assembles streamed assistant text", () => {
     const state = createAgentState();
 
-    applyPiEvent(state, {
-      type: "message_start",
-      message: { role: "assistant", content: [] },
-    });
+    applyPiEvent(
+      state,
+      JSON.stringify({ type: "message_start", message: { role: "assistant", content: [] } }),
+    );
     applyPiEvent(state, {
       type: "message_update",
       assistantMessageEvent: { type: "text_delta", delta: "Hello " },

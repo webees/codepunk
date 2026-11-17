@@ -3,12 +3,7 @@ export type PiMessage = {
   text: string;
 };
 
-export type PiStatus = {
-  running: boolean;
-};
-
 export type AgentState = {
-  status: PiStatus | null;
   busy: boolean;
   error: string;
   messages: PiMessage[];
@@ -16,7 +11,6 @@ export type AgentState = {
 };
 
 export const createAgentState = (): AgentState => ({
-  status: null,
   busy: false,
   error: "",
   messages: [],
@@ -42,7 +36,7 @@ const addTool = (state: AgentState, line: string): void => {
 };
 
 export const applyPiEvent = (state: AgentState, payload: unknown): void => {
-  const event = asRecord(payload);
+  const event = asRecord(typeof payload === "string" ? JSON.parse(payload) : payload);
   if (!event) return;
   const message = asRecord(event.message);
 
@@ -94,7 +88,6 @@ export const applyPiEvent = (state: AgentState, payload: unknown): void => {
       break;
     case "exit":
       state.busy = false;
-      if (state.status) state.status = { ...state.status, running: false };
       break;
     default:
       break;
