@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Core event access for the CodePunk window.",
+  "windows": ["main"],
+  "permissions": ["core:event:default"]
+}
