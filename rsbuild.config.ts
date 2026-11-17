@@ -7,14 +7,12 @@ const htmlTemplate = `<!doctype html>
     <meta charset="UTF-8" />
     <title>CodePunk</title>
   </head>
-  <body>
-    <div id="root"></div>
-  </body>
+  <body></body>
 </html>`;
 
 export default defineConfig({
   source: {
-    entry: { index: "./src/App.ts" },
+    entry: { index: "./src/index.ts" },
   },
   server: {
     port: 1420,
